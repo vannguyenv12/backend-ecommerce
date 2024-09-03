@@ -1,4 +1,5 @@
 import express, { Application, NextFunction, Request, Response } from 'express'
+import 'dotenv/config'
 import cookieParser from 'cookie-parser'
 import appRoutes from './globals/routes/appRoutes'
 import { CustomError, IError, NotFoundException } from './globals/middlewares/error.middleware'
