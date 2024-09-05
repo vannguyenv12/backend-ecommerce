@@ -1,8 +1,8 @@
-import { Response } from "express";
+import { Response } from 'express'
 
 export function sendTokenToCookie(res: Response, accessToken: string) {
   res.cookie('accessToken', accessToken, {
-    maxAge: 1000 * 60 * 10,
+    maxAge: 86400000,
     httpOnly: true,
     secure: false
   })
