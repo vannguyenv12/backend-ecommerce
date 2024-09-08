@@ -32,7 +32,9 @@ class ProductService {
   }
 
   public async get(): Promise<Product[]> {
-    const products: Product[] = await prisma.product.findMany()
+    const products: Product[] = await prisma.product.findMany({
+      where: { status: true }
+    })
     return products
   }
 
@@ -48,7 +50,7 @@ class ProductService {
     const take: number = pageSize
 
     const products: Product[] = await prisma.product.findMany({
-      where,
+      where: { ...where, status: true },
       skip,
       take,
       orderBy: {
@@ -62,7 +64,8 @@ class ProductService {
   public async getOne(id: number): Promise<Product> {
     const product: Product | null = await prisma.product.findFirst({
       where: {
-        id
+        id,
+        status: true
       },
       include: {
         productImages: true,
@@ -115,15 +118,19 @@ class ProductService {
     const currentProduct = await this.getProduct(id)
     Helper.checkPermission(currentProduct!, 'shopId', currentUser)
 
-    await prisma.product.delete({
-      where: { id }
+    await prisma.product.update({
+      where: { id },
+      data: {
+        status: false
+      }
     })
   }
 
   public async getMyProduct(currentUser: UserPayload) {
     const products = await prisma.product.findMany({
       where: {
-        shopId: currentUser.id
+        shopId: currentUser.id,
+        status: true
       }
     })
 
@@ -132,7 +139,7 @@ class ProductService {
 
   public async getProduct(id: number): Promise<Product | null> {
     const product: Product | null = await prisma.product.findFirst({
-      where: { id }
+      where: { id, status: true }
     })
 
     if (!product) return null
@@ -142,7 +149,7 @@ class ProductService {
 
   private async getCountProduct(id: number): Promise<number> {
     const count: number = await prisma.product.count({
-      where: { id }
+      where: { id, status: true }
     })
 
     return count

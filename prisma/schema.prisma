@@ -74,7 +74,7 @@ model Product {
   orderItems OrderItem[]
   reviews Review[]
 
-
+  status Boolean @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime? @updatedAt @default(now())
 }

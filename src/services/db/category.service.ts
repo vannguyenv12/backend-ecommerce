@@ -68,9 +68,12 @@ class CategoryService {
       throw new NotFoundException(`Category with ID: ${id} not found`)
     }
 
-    await prisma.category.delete({
+    await prisma.category.update({
       where: {
         id
+      },
+      data: {
+        status: false
       }
     })
   }

@@ -53,6 +53,7 @@
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.14",
     "prisma": "^5.15.1",
-    "redis": "^4.6.14"
+    "redis": "^4.6.14",
+    "shop": "file:"
   }
 }
