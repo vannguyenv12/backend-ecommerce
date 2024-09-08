@@ -110,6 +110,37 @@ class ProductService {
     return product
   }
 
+  public async update(
+    id: number,
+    requestBody: IProductBody,
+    currentUser: UserPayload,
+    mainImage: Express.Multer.File | undefined
+  ): Promise<Product> {
+    const { name, longDescription, shortDescription, quantity, categoryId, price } = requestBody
+
+    if ((await this.getCountProduct(id)) <= 0) {
+      throw new NotFoundException(`Product has ID: ${id} not found`)
+    }
+
+    const product: Product = await prisma.product.update({
+      where: {
+        id
+      },
+      data: {
+        name,
+        longDescription,
+        shortDescription,
+        quantity: parseInt(quantity),
+        main_image: mainImage?.filename ? mainImage.filename : '',
+        price: parseFloat(price),
+        categoryId: parseInt(categoryId),
+        shopId: currentUser.id
+      }
+    })
+
+    return product
+  }
+
   public async remove(id: number, currentUser: UserPayload) {
     if ((await this.getCountProduct(id)) <= 0) {
       throw new NotFoundException(`Product has ID: ${id} not found`)

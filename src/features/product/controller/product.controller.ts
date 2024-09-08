@@ -1,13 +1,11 @@
-import { Request, Response } from "express";
-import { HTTP_STATUS } from "~/globals/constants/http";
-import { UtilsConstant } from "~/globals/constants/utils";
-import { productService } from "~/services/db/product.service";
+import { Request, Response } from 'express'
+import { HTTP_STATUS } from '~/globals/constants/http'
+import { UtilsConstant } from '~/globals/constants/utils'
+import { productService } from '~/services/db/product.service'
 
 class ProductController {
   public async create(req: Request, res: Response) {
-    const product = await productService.add(req.body, req.currentUser, req.file);
-
-
+    const product = await productService.add(req.body, req.currentUser, req.file)
 
     return res.status(HTTP_STATUS.CREATED).json({
       message: 'Created product',
@@ -18,32 +16,32 @@ class ProductController {
   public async read(req: Request, res: Response) {
     // const products = await productService.get();
 
-    const page = parseInt(req.query.page as string) || UtilsConstant.DEFAULT_PAGE;
-    const pageSize = parseInt(req.query.pageSize as string) || UtilsConstant.DEFAULT_PAGE_SIZE;
-    const sortBy = req.query.sortBy as string || UtilsConstant.DEFAULT_SORT_BY;
-    const sortDir = req.query.sortDir as string || UtilsConstant.DEFAULT_SORT_DIR;
+    const page = parseInt(req.query.page as string) || UtilsConstant.DEFAULT_PAGE
+    const pageSize = parseInt(req.query.pageSize as string) || UtilsConstant.DEFAULT_PAGE_SIZE
+    const sortBy = (req.query.sortBy as string) || UtilsConstant.DEFAULT_SORT_BY
+    const sortDir = (req.query.sortDir as string) || UtilsConstant.DEFAULT_SORT_DIR
 
-    const where: any = {};
-    const filterBy: string = req.query.filterBy as string;
-    const filterValueParams: string = req.query.filterValue as string;
+    const where: any = {}
+    const filterBy: string = req.query.filterBy as string
+    const filterValueParams: string = req.query.filterValue as string
 
     if (filterValueParams) {
-      const [filterCondition, filterValue] = filterValueParams.split('.');
+      const [filterCondition, filterValue] = filterValueParams.split('.')
 
-      const operations = ['lt', 'lte', 'gt', 'gte'];
+      const operations = ['lt', 'lte', 'gt', 'gte']
       if (filterCondition === 'eq') {
         where[filterBy] = parseInt(filterValue)
       }
-      operations.forEach(operation => {
+      operations.forEach((operation) => {
         if (filterCondition === operation) {
-          console.log({ filterBy, filterCondition, filterValue });
-          where[filterBy] = {};
-          where[filterBy][filterCondition] = parseInt(filterValue);
+          console.log({ filterBy, filterCondition, filterValue })
+          where[filterBy] = {}
+          where[filterBy][filterCondition] = parseInt(filterValue)
         }
       })
     }
 
-    const products = await productService.getPagination(page, pageSize, sortBy, sortDir, where);
+    const products = await productService.getPagination(page, pageSize, sortBy, sortDir, where)
 
     return res.status(HTTP_STATUS.OK).json({
       message: 'Get all products',
@@ -53,7 +51,7 @@ class ProductController {
   }
 
   public async readOne(req: Request, res: Response) {
-    const product = await productService.getOne(parseInt(req.params.id));
+    const product = await productService.getOne(parseInt(req.params.id))
 
     return res.status(HTTP_STATUS.OK).json({
       message: 'Get single product',
@@ -62,7 +60,7 @@ class ProductController {
   }
 
   public async update(req: Request, res: Response) {
-    const product = await productService.edit(parseInt(req.params.id), req.body, req.currentUser);
+    const product = await productService.update(parseInt(req.params.id), req.body, req.currentUser, req.file)
 
     return res.status(HTTP_STATUS.OK).json({
       message: 'Update product',
@@ -71,7 +69,7 @@ class ProductController {
   }
 
   public async delete(req: Request, res: Response) {
-    await productService.remove(parseInt(req.params.id), req.currentUser);
+    await productService.remove(parseInt(req.params.id), req.currentUser)
 
     return res.status(HTTP_STATUS.OK).json({
       message: 'Delete product'
@@ -79,7 +77,7 @@ class ProductController {
   }
 
   public async readMyProducts(req: Request, res: Response) {
-    const products = await productService.getMyProduct(req.currentUser);
+    const products = await productService.getMyProduct(req.currentUser)
 
     return res.status(HTTP_STATUS.OK).json({
       message: 'Get my products',
@@ -88,4 +86,4 @@ class ProductController {
   }
 }
 
-export const productController: ProductController = new ProductController();
+export const productController: ProductController = new ProductController()
