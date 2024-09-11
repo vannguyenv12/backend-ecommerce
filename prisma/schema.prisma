@@ -118,7 +118,6 @@ model Address {
   province String?
   country String
   postalCode Int
-  orders Order[]
 
   user User @relation(fields: [userId], references: [id])
   userId Int
@@ -148,7 +147,7 @@ model CartItem {
 model Order {
   id Int @id @default(autoincrement())
   userId Int
-  addressId Int
+  address String @default("")
   couponCode String?
   totalPrice Float
   totalQuantity Int @default(1)
@@ -157,7 +156,6 @@ model Order {
   orderItems OrderItem[]
 
   user User @relation(fields: [userId], references: [id])
-  address Address @relation(fields: [addressId], references: [id])
   coupon Coupon? @relation(fields: [couponCode], references: [code])
 }
 

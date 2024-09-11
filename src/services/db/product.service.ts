@@ -43,14 +43,15 @@ class ProductService {
     pageSize: number = UtilsConstant.DEFAULT_PAGE_SIZE,
     sortBy: string = UtilsConstant.DEFAULT_SORT_BY,
     sortDir: string = UtilsConstant.DEFAULT_SORT_DIR,
-    where = {}
+    where = {},
+    name: string = ''
   ) {
     // page 1, every page has 5 products
     const skip: number = (page - 1) * pageSize // (3 - 1) * 10 = 20
     const take: number = pageSize
 
     const products: Product[] = await prisma.product.findMany({
-      where: { ...where, status: true },
+      where: { ...where, status: true, name: { contains: name } },
       skip,
       take,
       orderBy: {
@@ -58,7 +59,12 @@ class ProductService {
       }
     })
 
-    return products
+    const productsCount = await prisma.product.count({
+      // @ts-ignore
+      where: { status: true, price: where.price, name: { contains: name } }
+    })
+
+    return { products, productsCount }
   }
 
   public async getOne(id: number): Promise<Product> {

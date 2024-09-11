@@ -24,6 +24,7 @@ class ProductController {
     const where: any = {}
     const filterBy: string = req.query.filterBy as string
     const filterValueParams: string = req.query.filterValue as string
+    const name: string = req.query.name as string
 
     if (filterValueParams) {
       const [filterCondition, filterValue] = filterValueParams.split('.')
@@ -41,11 +42,11 @@ class ProductController {
       })
     }
 
-    const products = await productService.getPagination(page, pageSize, sortBy, sortDir, where)
+    const { products, productsCount } = await productService.getPagination(page, pageSize, sortBy, sortDir, where, name)
 
     return res.status(HTTP_STATUS.OK).json({
       message: 'Get all products',
-      totalCount: products.length,
+      totalCount: productsCount,
       data: products
     })
   }
