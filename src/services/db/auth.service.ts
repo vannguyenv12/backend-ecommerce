@@ -40,6 +40,14 @@ class AuthService {
       role: email.startsWith('admin') ? 'ADMIN' : newUser.role
     }
 
+    // Create cart
+    await prisma.cart.create({
+      data: {
+        userId: newUser.id,
+        totalPrice: 0
+      }
+    })
+
     const accessToken: string = this.generateJWT(payload)
 
     return accessToken

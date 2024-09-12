@@ -15,6 +15,7 @@ class OrderService {
     const address = await addresses.find((a) => a.id === addressId)
 
     const coupon: Coupon | null = await couponService.get(couponCode)
+
     if (!coupon) {
       throw new NotFoundException(`The coupon ${couponCode} does not exist`)
     }
@@ -105,7 +106,16 @@ class OrderService {
   }
 
   public async addWithNoCoupon(requestBody: any, currentUser: UserPayload) {
-    const { addressId } = requestBody
+    const { couponCode, addressId } = requestBody
+
+    let coupon: Coupon | null
+
+    if (couponCode) {
+      coupon = await couponService.get(couponCode)
+      if (!coupon) {
+        throw new NotFoundException(`The coupon ${couponCode} does not exist`)
+      }
+    }
 
     // Get all cart items in my cart
     const cart: any | null = await cartService.getMyCart(currentUser)
@@ -186,7 +196,7 @@ class OrderService {
       where: { id: newOrder.id },
       data: {
         totalQuantity: totalQuantity,
-        totalPrice: cart.totalPrice
+        totalPrice: couponCode ? Helper.getOrderTotalPrice(coupon!, cart.totalPrice) : cart.totalPrice
       }
     })
   }
@@ -194,7 +204,7 @@ class OrderService {
   public async update(orderId: number, requestBody: any) {
     const { status } = requestBody
 
-    if (status !== 'pending' && status !== 'delivered') {
+    if (status !== 'pending' && status !== 'delivered' && status !== 'cancel') {
       throw new BadRequestException('status does not support')
     }
 
@@ -212,7 +222,14 @@ class OrderService {
 
   public async getMyOrders(currentUser: UserPayload) {
     const orders: Order[] = await prisma.order.findMany({
-      where: { userId: currentUser.id }
+      where: { userId: currentUser.id },
+      include: {
+        orderItems: {
+          include: {
+            product: true
+          }
+        }
+      }
     })
 
     return orders
@@ -255,7 +272,7 @@ class OrderService {
   private async get(orderId: number, include = {}) {
     const order = await prisma.order.findFirst({
       where: { id: orderId },
-      include
+      include: { ...include, orderItems: true }
     })
 
     return order
